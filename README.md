@@ -83,7 +83,7 @@ clinica-medica-cuyun-gaitan/
 │   │   └── ...
 │   ├── package.json
 │   └── ...
-├── server/                 # Backend Node.js/Express application
+├── server/                 # Backend Node.js/Fastify application
 │   ├── src/               # Will contain API routes and models
 │   ├── package.json
 │   └── ...
@@ -97,7 +97,7 @@ clinica-medica-cuyun-gaitan/
 
 1. **Monorepo Setup**
    - ✅ Created `server/` and `ui/` folders
-   - ✅ Initialized server workspace with Express, TypeScript, and MongoDB dependencies
+   - ✅ Initialized server workspace with Fastify, TypeScript, and MongoDB dependencies
    - ✅ Moved existing React app to `ui/` folder
 
 2. **Tailwind CSS Configuration**
@@ -165,6 +165,35 @@ node test-connection.js
 # http://localhost:8081 (admin/admin123)
 ```
 
+## 🚀 Fastify Migration
+
+The backend has been migrated from Express to Fastify for improved performance and developer experience:
+
+### Migration Benefits:
+- **Performance**: Fastify is up to 2x faster than Express
+- **Built-in Logging**: Structured JSON logging with request/response timing
+- **Schema Validation**: Built-in JSON schema validation capabilities
+- **TypeScript Support**: Better TypeScript integration out of the box
+- **Plugin System**: Modular architecture with encapsulated plugins
+
+### Key Changes:
+- ✅ Replaced Express with Fastify v5
+- ✅ Updated CORS handling with `@fastify/cors`
+- ✅ Converted Express routes to Fastify plugins
+- ✅ Enhanced error handling with Fastify's error system
+- ✅ Improved TypeScript configuration
+- ✅ Added structured logging for better debugging
+
+### API Compatibility:
+All existing API endpoints remain the same:
+- `GET /api/stats` - Patient statistics
+- `GET /api/patients` - List patients with search/pagination
+- `POST /api/patients` - Create new patient
+- `GET /api/patients/:id` - Get patient details
+- `PUT /api/patients/:id` - Update patient
+- `DELETE /api/patients/:id` - Delete patient
+- `POST /api/patients/:id/notes` - Add patient note
+
 ## Next Steps (Parts 3-5)
 
 - **Part 3**: Mongoose models and TypeScript interfaces
@@ -174,7 +203,7 @@ node test-connection.js
 ## Technologies Used
 
 - **Frontend**: React 18, TypeScript, Tailwind CSS, Vite
-- **Backend**: Node.js, Express, TypeScript
+- **Backend**: Node.js, Fastify, TypeScript
 - **Database**: MongoDB (with Mongoose)
 - **UI Components**: shadcn/ui
 - **Styling**: Tailwind CSS with custom hospital theme
