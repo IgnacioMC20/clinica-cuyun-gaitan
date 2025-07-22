@@ -15,7 +15,7 @@ interface StatsCardProps {
 
 export function StatsCard({ label, value, icon, className, trend }: StatsCardProps) {
     return (
-        <Card className={cn("bg-hospitalWhite border-gray-200 hover:shadow-md transition-shadow", className)}>
+        <Card className={cn("bg-gray-50 border-gray-200 hover:shadow-md transition-shadow", className)}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-gray-600">
                     {label}

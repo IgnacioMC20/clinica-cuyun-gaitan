@@ -33,7 +33,9 @@ export default function Navbar() {
   }
 
   const navLinks = [
-    { to: "/patient", label: "Patients" },
+    { to: "/", label: "Dashboard" },
+    { to: "/patients", label: "All Patients" },
+    { to: "/patient/new", label: "New Patient" },
   ];
 
   return (

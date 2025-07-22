@@ -1,0 +1,353 @@
+/* Medical Theme CSS Variables and Custom Styles */
+
+:root {
+  /* Medical Color Variables */
+  --medical-blue-50: #eff6ff;
+  --medical-blue-100: #dbeafe;
+  --medical-blue-500: #3b82f6;
+  --medical-blue-600: #2563eb;
+  --medical-blue-700: #1d4ed8;
+  
+  --medical-green-50: #ecfdf5;
+  --medical-green-100: #d1fae5;
+  --medical-green-500: #10b981;
+  --medical-green-600: #059669;
+  
+  --medical-red-50: #fef2f2;
+  --medical-red-100: #fee2e2;
+  --medical-red-500: #ef4444;
+  --medical-red-600: #dc2626;
+  
+  --medical-orange-50: #fff7ed;
+  --medical-orange-100: #ffedd5;
+  --medical-orange-500: #f97316;
+  --medical-orange-600: #ea580c;
+  
+  --medical-gray-50: #f9fafb;
+  --medical-gray-100: #f3f4f6;
+  --medical-gray-500: #6b7280;
+  --medical-gray-600: #4b5563;
+  --medical-gray-900: #111827;
+
+  /* Medical Spacing */
+  --medical-spacing-xs: 0.25rem;  /* 4px */
+  --medical-spacing-sm: 0.5rem;   /* 8px */
+  --medical-spacing-md: 1rem;     /* 16px */
+  --medical-spacing-lg: 1.5rem;   /* 24px */
+  --medical-spacing-xl: 2rem;     /* 32px */
+  --medical-spacing-2xl: 3rem;    /* 48px */
+
+  /* Medical Border Radius */
+  --medical-radius-sm: 0.25rem;   /* 4px */
+  --medical-radius-md: 0.5rem;    /* 8px */
+  --medical-radius-lg: 0.75rem;   /* 12px */
+  --medical-radius-xl: 1rem;      /* 16px */
+
+  /* Medical Shadows */
+  --medical-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --medical-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --medical-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+  /* Medical Typography */
+  --medical-font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --medical-font-size-xs: 0.75rem;    /* 12px */
+  --medical-font-size-sm: 0.875rem;   /* 14px */
+  --medical-font-size-base: 1rem;     /* 16px */
+  --medical-font-size-lg: 1.125rem;   /* 18px */
+  --medical-font-size-xl: 1.25rem;    /* 20px */
+  --medical-font-size-2xl: 1.5rem;    /* 24px */
+  --medical-font-size-3xl: 1.875rem;  /* 30px */
+  --medical-font-size-4xl: 2.25rem;   /* 36px */
+}
+
+/* Medical Component Base Styles */
+
+/* Medical Button Variants */
+.btn-medical-primary {
+  @apply bg-medical-blue-500 text-white hover:bg-medical-blue-600 focus:ring-2 focus:ring-medical-blue-500 focus:ring-offset-2;
+  @apply px-4 py-2 rounded-medical font-medium transition-colors duration-200;
+  @apply disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-medical-success {
+  @apply bg-medical-green-500 text-white hover:bg-medical-green-600 focus:ring-2 focus:ring-medical-green-500 focus:ring-offset-2;
+  @apply px-4 py-2 rounded-medical font-medium transition-colors duration-200;
+  @apply disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-medical-warning {
+  @apply bg-medical-orange-500 text-white hover:bg-medical-orange-600 focus:ring-2 focus:ring-medical-orange-500 focus:ring-offset-2;
+  @apply px-4 py-2 rounded-medical font-medium transition-colors duration-200;
+  @apply disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-medical-danger {
+  @apply bg-medical-red-500 text-white hover:bg-medical-red-600 focus:ring-2 focus:ring-medical-red-500 focus:ring-offset-2;
+  @apply px-4 py-2 rounded-medical font-medium transition-colors duration-200;
+  @apply disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-medical-outline {
+  @apply border-2 border-medical-blue-500 text-medical-blue-500 hover:bg-medical-blue-50 focus:ring-2 focus:ring-medical-blue-500 focus:ring-offset-2;
+  @apply px-4 py-2 rounded-medical font-medium transition-colors duration-200;
+  @apply disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-medical-ghost {
+  @apply text-medical-blue-500 hover:bg-medical-blue-50 focus:ring-2 focus:ring-medical-blue-500 focus:ring-offset-2;
+  @apply px-4 py-2 rounded-medical font-medium transition-colors duration-200;
+  @apply disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+/* Medical Card Styles */
+.card-medical {
+  @apply bg-white rounded-medical-lg shadow-medical border border-medical-gray-200;
+  @apply p-6 transition-shadow duration-200;
+}
+
+.card-medical:hover {
+  @apply shadow-medical-md;
+}
+
+.card-medical-compact {
+  @apply bg-white rounded-medical shadow-medical border border-medical-gray-200;
+  @apply p-4 transition-shadow duration-200;
+}
+
+/* Medical Form Styles */
+.form-medical {
+  @apply space-y-6;
+}
+
+.form-field-medical {
+  @apply space-y-2;
+}
+
+.form-label-medical {
+  @apply block text-sm font-medium text-medical-gray-700;
+}
+
+.form-input-medical {
+  @apply block w-full px-3 py-2 border border-medical-gray-300 rounded-medical;
+  @apply focus:outline-none focus:ring-2 focus:ring-medical-blue-500 focus:border-transparent;
+  @apply disabled:bg-medical-gray-50 disabled:text-medical-gray-500 disabled:cursor-not-allowed;
+  @apply transition-colors duration-200;
+}
+
+.form-input-medical.error {
+  @apply border-medical-red-500 focus:ring-medical-red-500;
+}
+
+.form-error-medical {
+  @apply text-sm text-medical-red-600;
+}
+
+.form-help-medical {
+  @apply text-sm text-medical-gray-500;
+}
+
+/* Medical Badge Styles */
+.badge-medical {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.badge-medical-primary {
+  @apply bg-medical-blue-100 text-medical-blue-800;
+}
+
+.badge-medical-success {
+  @apply bg-medical-green-100 text-medical-green-800;
+}
+
+.badge-medical-warning {
+  @apply bg-medical-orange-100 text-medical-orange-800;
+}
+
+.badge-medical-danger {
+  @apply bg-medical-red-100 text-medical-red-800;
+}
+
+.badge-medical-gray {
+  @apply bg-medical-gray-100 text-medical-gray-800;
+}
+
+/* Medical Alert Styles */
+.alert-medical {
+  @apply p-4 rounded-medical border-l-4;
+}
+
+.alert-medical-info {
+  @apply bg-medical-blue-50 border-medical-blue-500 text-medical-blue-700;
+}
+
+.alert-medical-success {
+  @apply bg-medical-green-50 border-medical-green-500 text-medical-green-700;
+}
+
+.alert-medical-warning {
+  @apply bg-medical-orange-50 border-medical-orange-500 text-medical-orange-700;
+}
+
+.alert-medical-danger {
+  @apply bg-medical-red-50 border-medical-red-500 text-medical-red-700;
+}
+
+/* Medical Typography */
+.text-medical-heading {
+  @apply font-semibold text-medical-gray-900 leading-tight;
+}
+
+.text-medical-body {
+  @apply text-medical-gray-700 leading-relaxed;
+}
+
+.text-medical-caption {
+  @apply text-sm text-medical-gray-500;
+}
+
+.text-medical-label {
+  @apply text-sm font-medium text-medical-gray-700;
+}
+
+/* Medical Layout Utilities */
+.container-medical {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.section-medical {
+  @apply py-8 sm:py-12;
+}
+
+.grid-medical-dashboard {
+  @apply grid grid-cols-1 lg:grid-cols-3 gap-6;
+}
+
+.grid-medical-form {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-6;
+}
+
+.grid-medical-stats {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4;
+}
+
+/* Medical Animation Classes */
+.fade-in-medical {
+  animation: fadeInMedical 0.3s ease-in-out;
+}
+
+@keyframes fadeInMedical {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-in-medical {
+  animation: slideInMedical 0.3s ease-out;
+}
+
+@keyframes slideInMedical {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Medical Focus Styles */
+.focus-medical {
+  @apply focus:outline-none focus:ring-2 focus:ring-medical-blue-500 focus:ring-offset-2;
+}
+
+/* Medical Loading States */
+.loading-medical {
+  @apply animate-pulse;
+}
+
+.skeleton-medical {
+  @apply bg-medical-gray-200 rounded-medical;
+}
+
+/* Medical Responsive Utilities */
+@media (max-width: 640px) {
+  .mobile-medical-stack {
+    @apply flex-col space-y-4 space-x-0;
+  }
+}
+
+@media (min-width: 768px) {
+  .tablet-medical-grid {
+    @apply grid-cols-2;
+  }
+}
+
+@media (min-width: 1024px) {
+  .desktop-medical-grid {
+    @apply grid-cols-3;
+  }
+}
+
+/* Medical Print Styles */
+@media print {
+  .print-medical-hide {
+    @apply hidden;
+  }
+  
+  .print-medical-page-break {
+    page-break-before: always;
+  }
+  
+  .card-medical {
+    @apply shadow-none border border-medical-gray-300;
+  }
+}
+
+/* Light theme only - Dark mode removed per user request */
+
+/* Medical Accessibility Enhancements */
+.sr-only-medical {
+  @apply sr-only;
+}
+
+.focus-visible-medical {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-medical-blue-500 focus-visible:ring-offset-2;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .btn-medical-primary {
+    @apply border-2 border-black;
+  }
+  
+  .card-medical {
+    @apply border-2 border-black;
+  }
+  
+  .form-input-medical {
+    @apply border-2 border-black;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .fade-in-medical,
+  .slide-in-medical {
+    animation: none;
+  }
+  
+  .btn-medical-primary,
+  .btn-medical-success,
+  .btn-medical-warning,
+  .btn-medical-danger,
+  .btn-medical-outline,
+  .btn-medical-ghost {
+    @apply transition-none;
+  }
+}

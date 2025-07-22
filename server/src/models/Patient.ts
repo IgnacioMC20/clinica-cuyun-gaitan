@@ -6,6 +6,7 @@ export interface IPatientDocument extends Omit<IPatient, 'id'>, Document {
     _id: string;
     createdAt: Date;
     updatedAt: Date;
+    fullName: string;
     addNote(title: string, content: string): Promise<IPatientDocument>;
     getRecentNotes(limit?: number): PatientNote[];
 }
@@ -109,9 +110,7 @@ const patientSchema = new Schema<IPatientDocument>({
         trim: true,
         minlength: [PATIENT_VALIDATION.phone.minLength, `Phone must be at least ${PATIENT_VALIDATION.phone.minLength} characters`],
         maxlength: [PATIENT_VALIDATION.phone.maxLength, `Phone cannot exceed ${PATIENT_VALIDATION.phone.maxLength} characters`],
-        match: [PATIENT_VALIDATION.phone.pattern, 'Phone number format is invalid'],
-        unique: true,
-        index: true
+        match: [PATIENT_VALIDATION.phone.pattern, 'Phone number format is invalid']
     },
     vaccination: {
         type: [String],

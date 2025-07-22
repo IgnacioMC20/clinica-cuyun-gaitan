@@ -11,7 +11,9 @@ const menuItems = [
     {
         title: "Navigation",
         items: [
-            { to: "/patient", label: "Patients", icon: <Users className="w-4 h-4" /> },
+            { to: "/", label: "Dashboard", icon: <Users className="w-4 h-4" /> },
+            { to: "/patients", label: "All Patients", icon: <Users className="w-4 h-4" /> },
+            { to: "/patient/new", label: "New Patient", icon: <Users className="w-4 h-4" /> },
         ]
     }
 ];

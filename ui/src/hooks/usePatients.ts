@@ -1,216 +1,115 @@
-import { useState, useEffect, useCallback } from 'react';
-import {
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { patientsApi } from '../lib/api/patients';
+import type {
     PatientResponse,
-    PatientSearchParams,
-    PatientSearchResponse,
     CreatePatientRequest,
-    UpdatePatientRequest
-} from '../../../shared/types';
-import { patientsApi, ApiError } from '../lib/api/patients';
+    UpdatePatientRequest,
+    PatientSearchParams
+} from '../../../shared/types/patient';
 
-// Hook for fetching patients with search and pagination
-export function usePatients(initialParams: Partial<PatientSearchParams> = {}) {
-    const [data, setData] = useState<PatientSearchResponse | null>(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [params, setParams] = useState<Partial<PatientSearchParams>>(initialParams);
+// Query Keys
+export const patientKeys = {
+    all: ['patients'] as const,
+    lists: () => [...patientKeys.all, 'list'] as const,
+    list: (filters: PatientSearchParams) => [...patientKeys.lists(), { filters }] as const,
+    details: () => [...patientKeys.all, 'detail'] as const,
+    detail: (id: string) => [...patientKeys.details(), id] as const,
+};
 
-    const fetchPatients = useCallback(async (searchParams?: Partial<PatientSearchParams>) => {
-        setLoading(true);
-        setError(null);
+// Fetch all patients with search support
+export const usePatients = (searchParams: Partial<PatientSearchParams> = {}) => {
+    return useQuery({
+        queryKey: patientKeys.list(searchParams),
+        queryFn: () => patientsApi.getPatients(searchParams),
+        staleTime: 5 * 60 * 1000, // 5 minutes
+    });
+};
 
-        try {
-            const finalParams = searchParams || params;
-            const result = await patientsApi.getPatients(finalParams);
-            setData(result);
-        } catch (err) {
-            const errorMessage = err instanceof ApiError ? err.message : 'Failed to fetch patients';
-            setError(errorMessage);
-            console.error('Error fetching patients:', err);
-        } finally {
-            setLoading(false);
-        }
-    }, [params]);
+// Fetch single patient
+export const usePatient = (id: string) => {
+    return useQuery({
+        queryKey: patientKeys.detail(id),
+        queryFn: () => patientsApi.getPatient(id),
+        enabled: !!id,
+    });
+};
 
-    // Update search parameters and refetch
-    const updateParams = useCallback((newParams: Partial<PatientSearchParams>) => {
-        setParams(prev => ({ ...prev, ...newParams }));
-    }, []);
+// Create patient mutation
+export const useCreatePatient = () => {
+    const queryClient = useQueryClient();
 
-    // Refresh with current parameters
-    const refresh = useCallback(() => {
-        fetchPatients();
-    }, [fetchPatients]);
+    return useMutation({
+        mutationFn: (data: CreatePatientRequest) => patientsApi.createPatient(data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: patientKeys.lists() });
+        },
+        onError: (error) => {
+            console.error('Error creating patient:', error);
+        },
+    });
+};
 
-    // Initial fetch
-    useEffect(() => {
-        fetchPatients();
-    }, [fetchPatients]);
+// Update patient mutation
+export const useUpdatePatient = () => {
+    const queryClient = useQueryClient();
 
-    return {
-        data,
-        loading,
-        error,
-        params,
-        updateParams,
-        refresh,
-        fetchPatients,
-    };
-}
+    return useMutation({
+        mutationFn: ({ id, data }: { id: string; data: Partial<UpdatePatientRequest> }) =>
+            patientsApi.updatePatient(id, data),
+        onSuccess: (updatedPatient: PatientResponse) => {
+            queryClient.setQueryData(
+                patientKeys.detail(updatedPatient.id),
+                updatedPatient
+            );
+            queryClient.invalidateQueries({ queryKey: patientKeys.lists() });
+        },
+        onError: (error) => {
+            console.error('Error updating patient:', error);
+        },
+    });
+};
 
-// Hook for fetching a single patient
-export function usePatient(id: string | null) {
-    const [data, setData] = useState<PatientResponse | null>(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+// Delete patient mutation
+export const useDeletePatient = () => {
+    const queryClient = useQueryClient();
 
-    const fetchPatient = useCallback(async (patientId: string) => {
-        setLoading(true);
-        setError(null);
+    return useMutation({
+        mutationFn: (id: string) => patientsApi.deletePatient(id),
+        onSuccess: (_, deletedId) => {
+            queryClient.removeQueries({ queryKey: patientKeys.detail(deletedId) });
+            queryClient.invalidateQueries({ queryKey: patientKeys.lists() });
+        },
+        onError: (error) => {
+            console.error('Error deleting patient:', error);
+        },
+    });
+};
 
-        try {
-            const result = await patientsApi.getPatient(patientId);
-            setData(result);
-        } catch (err) {
-            const errorMessage = err instanceof ApiError ? err.message : 'Failed to fetch patient';
-            setError(errorMessage);
-            console.error('Error fetching patient:', err);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+// Add note to patient mutation
+export const useAddPatientNote = () => {
+    const queryClient = useQueryClient();
 
-    useEffect(() => {
-        if (id) {
-            fetchPatient(id);
-        } else {
-            setData(null);
-            setError(null);
-        }
-    }, [id, fetchPatient]);
+    return useMutation({
+        mutationFn: ({ id, note }: { id: string; note: { title: string; content: string } }) =>
+            patientsApi.addNote(id, note),
+        onSuccess: (updatedPatient: PatientResponse) => {
+            queryClient.setQueryData(
+                patientKeys.detail(updatedPatient.id),
+                updatedPatient
+            );
+        },
+        onError: (error) => {
+            console.error('Error adding note:', error);
+        },
+    });
+};
 
-    const refresh = useCallback(() => {
-        if (id) {
-            fetchPatient(id);
-        }
-    }, [id, fetchPatient]);
-
-    return {
-        data,
-        loading,
-        error,
-        refresh,
-    };
-}
-
-// Hook for patient mutations (create, update, delete)
-export function usePatientMutations() {
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-
-    const createPatient = useCallback(async (patient: CreatePatientRequest): Promise<PatientResponse | null> => {
-        setLoading(true);
-        setError(null);
-
-        try {
-            const result = await patientsApi.createPatient(patient);
-            return result;
-        } catch (err) {
-            const errorMessage = err instanceof ApiError ? err.message : 'Failed to create patient';
-            setError(errorMessage);
-            console.error('Error creating patient:', err);
-            return null;
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
-    const updatePatient = useCallback(async (
-        id: string,
-        patient: Partial<UpdatePatientRequest>
-    ): Promise<PatientResponse | null> => {
-        setLoading(true);
-        setError(null);
-
-        try {
-            const result = await patientsApi.updatePatient(id, patient);
-            return result;
-        } catch (err) {
-            const errorMessage = err instanceof ApiError ? err.message : 'Failed to update patient';
-            setError(errorMessage);
-            console.error('Error updating patient:', err);
-            return null;
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
-    const deletePatient = useCallback(async (id: string): Promise<boolean> => {
-        setLoading(true);
-        setError(null);
-
-        try {
-            await patientsApi.deletePatient(id);
-            return true;
-        } catch (err) {
-            const errorMessage = err instanceof ApiError ? err.message : 'Failed to delete patient';
-            setError(errorMessage);
-            console.error('Error deleting patient:', err);
-            return false;
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
-    const addNote = useCallback(async (
-        id: string,
-        note: { title: string; content: string }
-    ): Promise<PatientResponse | null> => {
-        setLoading(true);
-        setError(null);
-
-        try {
-            const result = await patientsApi.addNote(id, note);
-            return result;
-        } catch (err) {
-            const errorMessage = err instanceof ApiError ? err.message : 'Failed to add note';
-            setError(errorMessage);
-            console.error('Error adding note:', err);
-            return null;
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
-    const searchByPhone = useCallback(async (phone: string): Promise<PatientResponse | null> => {
-        setLoading(true);
-        setError(null);
-
-        try {
-            const result = await patientsApi.searchByPhone(phone);
-            return result;
-        } catch (err) {
-            const errorMessage = err instanceof ApiError ? err.message : 'Patient not found';
-            setError(errorMessage);
-            console.error('Error searching by phone:', err);
-            return null;
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
-    const clearError = useCallback(() => {
-        setError(null);
-    }, []);
-
-    return {
-        loading,
-        error,
-        createPatient,
-        updatePatient,
-        deletePatient,
-        addNote,
-        searchByPhone,
-        clearError,
-    };
-}
+// Search patient by phone
+export const useSearchPatientByPhone = (phone: string) => {
+    return useQuery({
+        queryKey: ['patients', 'search', 'phone', phone],
+        queryFn: () => patientsApi.searchByPhone(phone),
+        enabled: !!phone && phone.length >= 8,
+        staleTime: 2 * 60 * 1000, // 2 minutes
+    });
+};
