@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card, Typography, Button, Input } from '../atoms';
 import { NoteItem } from '../molecules';
-import { useAddPatientNote } from '../../hooks/usePatients';
+import { useAddPatientNote, useDeletePatientNote } from '../../hooks/usePatients';
 import type { PatientResponse, PatientNote } from '../../../../shared/types/patient';
 import { Plus, FileText } from 'lucide-react';
 
@@ -29,6 +29,7 @@ export const NotesList: React.FC<NotesListProps> = ({
     const [noteToDelete, setNoteToDelete] = useState<string | null>(null);
 
     const addNoteMutation = useAddPatientNote();
+    const deleteNoteMutation = useDeletePatientNote();
 
     const handleAddNote = async () => {
         if (!newNoteTitle.trim() || !newNoteContent.trim()) {
@@ -74,11 +75,21 @@ export const NotesList: React.FC<NotesListProps> = ({
         setShowDeleteConfirm(true);
     };
 
-    const confirmDeleteNote = () => {
-        if (noteToDelete) {
+    const confirmDeleteNote = async () => {
+        if (!noteToDelete) return;
+
+        try {
+            await deleteNoteMutation.mutateAsync({
+                patientId: patient.id,
+                noteId: noteToDelete
+            });
+
+            // Notify parent component
             onNoteDeleted?.(noteToDelete);
             setShowDeleteConfirm(false);
             setNoteToDelete(null);
+        } catch (error) {
+            console.error('Error deleting note:', error);
         }
     };
 
@@ -278,6 +289,7 @@ export const NotesList: React.FC<NotesListProps> = ({
                                     variant="outline"
                                     onClick={cancelDeleteNote}
                                     className="flex-1"
+                                    disabled={deleteNoteMutation.isPending}
                                 >
                                     Cancelar
                                 </Button>
@@ -285,6 +297,8 @@ export const NotesList: React.FC<NotesListProps> = ({
                                     variant="destructive"
                                     onClick={confirmDeleteNote}
                                     className="flex-1"
+                                    loading={deleteNoteMutation.isPending}
+                                    disabled={deleteNoteMutation.isPending}
                                 >
                                     Eliminar
                                 </Button>

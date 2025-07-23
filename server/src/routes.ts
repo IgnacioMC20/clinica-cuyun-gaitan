@@ -142,7 +142,12 @@ const routes: FastifyPluginAsync = async (app) => {
                 id: (patient as any)._id.toString(),
                 createdAt: (patient as any).createdAt.toISOString(),
                 updatedAt: (patient as any).updatedAt.toISOString(),
-                visitDate: new Date((patient as any).visitDate).toISOString()
+                visitDate: new Date((patient as any).visitDate).toISOString(),
+                notes: (patient as any).notes?.map((note: any) => ({
+                    ...note.toObject(),
+                    id: note._id.toString(),
+                    date: new Date(note.date).toISOString()
+                })) || []
             };
 
             return reply.send(response);
@@ -175,7 +180,12 @@ const routes: FastifyPluginAsync = async (app) => {
                 id: (patient as any)._id.toString(),
                 createdAt: (patient as any).createdAt.toISOString(),
                 updatedAt: (patient as any).updatedAt.toISOString(),
-                visitDate: new Date((patient as any).visitDate).toISOString()
+                visitDate: new Date((patient as any).visitDate).toISOString(),
+                notes: (patient as any).notes?.map((note: any) => ({
+                    ...note,
+                    id: note._id?.toString(),
+                    date: new Date(note.date).toISOString()
+                })) || []
             };
 
             return reply.send(response);
@@ -372,6 +382,52 @@ const routes: FastifyPluginAsync = async (app) => {
             return reply.status(500).send({
                 error: 'Internal Server Error',
                 message: 'Failed to add note'
+            });
+        }
+    });
+
+    // DELETE /api/patients/:id/notes/:noteId - Delete specific note from patient
+    app.delete('/patients/:id/notes/:noteId', async (request, reply) => {
+        try {
+            const { id, noteId } = request.params as { id: string; noteId: string };
+
+            const patient = await Patient.findById(id);
+
+            if (!patient) {
+                return reply.status(404).send({
+                    error: 'Not Found',
+                    message: 'Patient not found'
+                });
+            }
+
+            // Find and remove the note using MongoDB's pull method
+            const originalNotesLength = patient.notes.length;
+            patient.notes = patient.notes.filter((note: any) => note._id?.toString() !== noteId);
+
+            if (patient.notes.length === originalNotesLength) {
+                return reply.status(404).send({
+                    error: 'Not Found',
+                    message: 'Note not found'
+                });
+            }
+
+            await patient.save();
+
+            // Transform response
+            const response = {
+                ...patient.toObject(),
+                id: patient._id.toString(),
+                createdAt: patient.createdAt.toISOString(),
+                updatedAt: patient.updatedAt.toISOString(),
+                visitDate: new Date(patient.visitDate).toISOString()
+            };
+
+            return reply.send(response);
+        } catch (error) {
+            request.log.error('Error deleting note:', error);
+            return reply.status(500).send({
+                error: 'Internal Server Error',
+                message: 'Failed to delete note'
             });
         }
     });

@@ -104,6 +104,25 @@ export const useAddPatientNote = () => {
     });
 };
 
+// Delete note from patient mutation
+export const useDeletePatientNote = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ patientId, noteId }: { patientId: string; noteId: string }) =>
+            patientsApi.deleteNote(patientId, noteId),
+        onSuccess: (updatedPatient: PatientResponse) => {
+            queryClient.setQueryData(
+                patientKeys.detail(updatedPatient.id),
+                updatedPatient
+            );
+        },
+        onError: (error) => {
+            console.error('Error deleting note:', error);
+        },
+    });
+};
+
 // Search patient by phone
 export const useSearchPatientByPhone = (phone: string) => {
     return useQuery({

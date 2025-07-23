@@ -116,6 +116,13 @@ export const patientsApi = {
         });
     },
 
+    // Delete note from patient
+    async deleteNote(patientId: string, noteId: string): Promise<PatientResponse> {
+        return apiRequest<PatientResponse>(`/patients/${patientId}/notes/${noteId}`, {
+            method: 'DELETE',
+        });
+    },
+
     // Search patient by phone
     async searchByPhone(phone: string): Promise<PatientResponse> {
         return apiRequest<PatientResponse>(`/patients/search/phone/${encodeURIComponent(phone)}`);
