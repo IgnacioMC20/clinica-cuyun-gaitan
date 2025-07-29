@@ -25,6 +25,7 @@ export const PatientSelector: React.FC<PatientSelectorProps> = ({
     });
 
     const { data: patientsData, isLoading, error, isError } = usePatients(searchParams);
+    console.log('Patients data:', { data: patientsData, isLoading, error, isError });
 
     const handleSearch = (query: string) => {
         setSearchParams(prev => ({
@@ -115,17 +116,22 @@ export const PatientSelector: React.FC<PatientSelectorProps> = ({
                 ) : !patientsData?.patients.length ? (
                     <div className="text-center py-8">
                         <Typography variant="h4" className="text-muted-foreground mb-2">
-                            No se encontraron pacientes
-                        </Typography>
-                        <Typography variant="body" className="text-muted-foreground mb-4">
-                            {searchParams.query
-                                ? 'Intenta con otros términos de búsqueda'
-                                : 'Comienza agregando tu primer paciente'
+                            {patientsData?.total === 0 && !searchParams.query
+                                ? 'No hay pacientes registrados'
+                                : 'No se encontraron pacientes'
                             }
                         </Typography>
-                        {onCreateNew && !searchParams.query && (
+                        <Typography variant="body" className="text-muted-foreground mb-4">
+                            {patientsData?.total === 0 && !searchParams.query
+                                ? 'Comienza agregando tu primer paciente al sistema'
+                                : searchParams.query
+                                    ? 'Intenta con otros términos de búsqueda'
+                                    : 'Comienza agregando tu primer paciente'
+                            }
+                        </Typography>
+                        {onCreateNew && (patientsData?.total === 0 || !searchParams.query) && (
                             <Button onClick={onCreateNew}>
-                                Agregar Primer Paciente
+                                {patientsData?.total === 0 ? 'Agregar Primer Paciente' : 'Agregar Primer Paciente'}
                             </Button>
                         )}
                     </div>

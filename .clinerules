@@ -1,0 +1,136 @@
+# Clínica Médica Cuyún Gaitán - Project Intelligence
+
+## Project Context
+This is a medical clinic management system built with React, TypeScript, Tailwind CSS, Fastify, and MongoDB. The project follows atomic design principles and is currently implementing authentication with Lucia Auth.
+
+## Critical Implementation Paths
+
+### Authentication Flow (Current Priority)
+- **Lucia Auth Integration**: Session-based authentication is preferred over JWT for security
+- **Component Pattern**: Auth components follow atomic design (atoms → molecules → organisms)
+- **State Management**: Use React Context for auth state, TanStack Query for API calls
+- **Route Protection**: Higher-order component pattern for protected routes
+- **Error Handling**: Consistent error display with medical-appropriate messaging
+
+### Patient Management System (Completed)
+- **CRUD Operations**: Complete patient lifecycle management implemented
+- **Search & Filtering**: Real-time search with debouncing, advanced filtering by multiple criteria
+- **Data Validation**: Comprehensive form validation with TypeScript type safety
+- **UI Components**: Atomic design with 7 atoms, 5 molecules, 4 organisms, 4 pages
+
+## User Preferences & Workflow
+
+### Development Approach
+- **Memory-First**: Always read memory-bank files at session start for context
+- **Atomic Design**: Strict adherence to atoms → molecules → organisms → pages hierarchy
+- **TypeScript Safety**: Full type safety across frontend and backend
+- **Medical Theme**: Professional healthcare-appropriate design system
+- **Testing**: Component testing with Vitest, API testing with Jest
+
+### Code Organization Patterns
+- **File Naming**: PascalCase for components, camelCase for hooks, kebab-case for utilities
+- **Import Structure**: Barrel exports for clean imports, named imports for clarity
+- **Component Props**: Props-driven design with variant systems for flexibility
+- **Error Boundaries**: Graceful error handling with fallback UI
+
+## Project-Specific Patterns
+
+### Medical UI/UX Standards
+- **Color Palette**: Blue (trust), Green (success), Red (alerts), Orange (warnings), Gray (neutral)
+- **Accessibility**: ARIA labels, high contrast, keyboard navigation, screen reader support
+- **Responsive Design**: Mobile-first approach with medical device breakpoints
+- **Professional Tone**: Clean, uncluttered interfaces that reduce cognitive load
+
+### Data Management Architecture
+- **TanStack Query**: 5-minute stale time, 10-minute cache time, automatic invalidation
+- **Query Key Factory**: Centralized cache management with organized key patterns
+- **Optimistic Updates**: Better UX for mutations with rollback on errors
+- **Error Recovery**: User-friendly error messages with clear recovery paths
+
+### Backend API Patterns
+- **Fastify Framework**: High-performance with structured JSON logging
+- **RESTful Design**: Consistent endpoint patterns with proper HTTP methods
+- **MongoDB + Mongoose**: Document database with TypeScript-integrated ODM
+- **Environment Config**: Flexible configuration for dev/staging/production
+
+## Known Challenges & Solutions
+
+### Authentication Implementation
+- **Challenge**: TypeScript integration with Lucia Auth
+- **Solution**: Proper type definitions and interface extensions
+- **Challenge**: Session management across page refreshes
+- **Solution**: Session persistence with MongoDB store
+
+### Component Architecture
+- **Challenge**: Maintaining atomic design principles at scale
+- **Solution**: Strict component hierarchy and clear responsibility boundaries
+- **Challenge**: Medical theme consistency across components
+- **Solution**: Centralized theme system with Tailwind CSS custom properties
+
+### Performance Optimization
+- **Challenge**: Large patient datasets affecting UI performance
+- **Solution**: Debounced search, pagination, and virtual scrolling (planned)
+- **Challenge**: Bundle size optimization
+- **Solution**: Code splitting and lazy loading implementation
+
+## Evolution of Project Decisions
+
+### Technology Stack Evolution
+1. **Express → Fastify**: Migrated for better performance and TypeScript support
+2. **Basic CSS → Tailwind**: Adopted utility-first approach with medical theme
+3. **useState → TanStack Query**: Modern data fetching with caching
+4. **Manual Auth → Lucia Auth**: Professional authentication system
+
+### Architecture Refinements
+1. **Component Structure**: Evolved from basic components to atomic design
+2. **Type Safety**: Strengthened TypeScript configuration and shared types
+3. **Error Handling**: Implemented comprehensive error boundaries and user feedback
+4. **Testing Strategy**: Established testing patterns for components and APIs
+
+## Tool Usage Patterns
+
+### Development Workflow
+- **Memory Bank**: Always reference for project context and current status
+- **Atomic Design**: Build components bottom-up (atoms first, then molecules, etc.)
+- **TanStack Query**: Use for all server state management and API interactions
+- **TypeScript**: Strict type checking with proper interface definitions
+
+### Quality Assurance
+- **Component Testing**: Test atoms and molecules individually, organisms as integration
+- **API Testing**: Comprehensive endpoint testing with various scenarios
+- **Error Scenarios**: Test error handling and recovery paths
+- **Accessibility**: Regular accessibility audits and keyboard navigation testing
+
+## Future Considerations
+
+### Scalability Planning
+- **Multi-clinic Support**: Architecture supports future multi-tenancy
+- **Role-based Access**: Foundation laid for complex permission systems
+- **Integration Points**: API design allows for future third-party integrations
+- **Performance**: Monitoring and optimization strategies planned
+
+### Security Enhancements
+- **Email Verification**: Planned for user registration
+- **Two-factor Authentication**: Future security enhancement
+- **Audit Logging**: Track user actions for compliance
+- **Data Encryption**: Enhanced patient data protection
+
+## Key Insights for Future Development
+
+### What Works Well
+- Atomic design provides excellent component reusability and maintainability
+- TanStack Query significantly improves data management and user experience
+- Medical theme creates professional, trustworthy interface
+- TypeScript prevents many runtime errors and improves developer experience
+
+### Areas for Improvement
+- Authentication system needs completion for production readiness
+- Testing coverage should be expanded for better reliability
+- Performance optimization needed for larger datasets
+- Documentation could be enhanced for easier onboarding
+
+### Critical Success Factors
+- Maintain medical-first design approach for user trust
+- Keep authentication simple but secure for healthcare compliance
+- Ensure accessibility for diverse user needs in medical environments
+- Focus on reliability and error recovery for critical patient data

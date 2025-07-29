@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import Medical Theme */
 @import './styles/medical-theme.css';
 
 @layer base {

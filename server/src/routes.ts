@@ -1,9 +1,10 @@
 import { FastifyPluginAsync } from 'fastify';
 import { Patient } from './models/Patient';
+import { requireAuth } from './middleware/requireAuth';
 
 const routes: FastifyPluginAsync = async (app) => {
     // GET /api/stats - Get patient statistics
-    app.get('/stats', async (request, reply) => {
+    app.get('/stats', { preHandler: [requireAuth()] }, async (request, reply) => {
         try {
             // Get basic stats using aggregation
             const stats = await Patient.aggregate([
@@ -43,7 +44,7 @@ const routes: FastifyPluginAsync = async (app) => {
     });
 
     // GET /api/patients - List patients with search and pagination
-    app.get('/patients', async (request, reply) => {
+    app.get('/patients', { preHandler: [requireAuth()] }, async (request, reply) => {
         try {
             const query = request.query as {
                 query?: string;
@@ -121,7 +122,7 @@ const routes: FastifyPluginAsync = async (app) => {
     });
 
     // GET /api/patients/search/phone/:phone - Search patient by phone
-    app.get('/patients/search/phone/:phone', async (request, reply) => {
+    app.get('/patients/search/phone/:phone', { preHandler: [requireAuth()] }, async (request, reply) => {
         try {
             const { phone } = request.params as { phone: string };
 
@@ -161,7 +162,7 @@ const routes: FastifyPluginAsync = async (app) => {
     });
 
     // GET /api/patients/:id - Get single patient
-    app.get('/patients/:id', async (request, reply) => {
+    app.get('/patients/:id', { preHandler: [requireAuth()] }, async (request, reply) => {
         try {
             const { id } = request.params as { id: string };
 
@@ -199,7 +200,7 @@ const routes: FastifyPluginAsync = async (app) => {
     });
 
     // POST /api/patients - Create new patient
-    app.post('/patients', async (request, reply) => {
+    app.post('/patients', { preHandler: [requireAuth()] }, async (request, reply) => {
         try {
             const patientData = request.body as any;
 
@@ -249,7 +250,7 @@ const routes: FastifyPluginAsync = async (app) => {
     });
 
     // PUT /api/patients/:id - Update patient
-    app.put('/patients/:id', async (request, reply) => {
+    app.put('/patients/:id', { preHandler: [requireAuth()] }, async (request, reply) => {
         try {
             const { id } = request.params as { id: string };
             const updateData = request.body as any;
@@ -309,7 +310,7 @@ const routes: FastifyPluginAsync = async (app) => {
     });
 
     // DELETE /api/patients/:id - Delete patient
-    app.delete('/patients/:id', async (request, reply) => {
+    app.delete('/patients/:id', { preHandler: [requireAuth(['admin', 'doctor'])] }, async (request, reply) => {
         try {
             const { id } = request.params as { id: string };
 
@@ -336,7 +337,7 @@ const routes: FastifyPluginAsync = async (app) => {
     });
 
     // POST /api/patients/:id/notes - Add note to patient
-    app.post('/patients/:id/notes', async (request, reply) => {
+    app.post('/patients/:id/notes', { preHandler: [requireAuth()] }, async (request, reply) => {
         try {
             const { id } = request.params as { id: string };
             const { title, content } = request.body as { title: string; content: string };
@@ -387,7 +388,7 @@ const routes: FastifyPluginAsync = async (app) => {
     });
 
     // DELETE /api/patients/:id/notes/:noteId - Delete specific note from patient
-    app.delete('/patients/:id/notes/:noteId', async (request, reply) => {
+    app.delete('/patients/:id/notes/:noteId', { preHandler: [requireAuth()] }, async (request, reply) => {
         try {
             const { id, noteId } = request.params as { id: string; noteId: string };
 

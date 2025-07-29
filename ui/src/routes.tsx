@@ -1,21 +1,52 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { DashboardPage, PatientDetailPage, NewPatientPage, AllPatientsPage } from './pages';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { LoginForm } from './components/auth/LoginForm';
+import { SignupForm } from './components/auth/SignupForm';
 
 export const router = createBrowserRouter([
     {
         path: '/',
-        element: <DashboardPage />
+        element: <Navigate to="/tablero" replace />
     },
     {
-        path: '/patients',
-        element: <AllPatientsPage />
+        path: '/iniciar-sesion',
+        element: <LoginForm />
     },
     {
-        path: '/patient/new',
-        element: <NewPatientPage />
+        path: '/registro',
+        element: <SignupForm />
     },
     {
-        path: '/patient/:id',
-        element: <PatientDetailPage />
+        path: '/tablero',
+        element: (
+            <ProtectedRoute>
+                <DashboardPage />
+            </ProtectedRoute>
+        )
+    },
+    {
+        path: '/pacientes',
+        element: (
+            <ProtectedRoute>
+                <AllPatientsPage />
+            </ProtectedRoute>
+        )
+    },
+    {
+        path: '/paciente/nuevo',
+        element: (
+            <ProtectedRoute>
+                <NewPatientPage />
+            </ProtectedRoute>
+        )
+    },
+    {
+        path: '/paciente/:id',
+        element: (
+            <ProtectedRoute>
+                <PatientDetailPage />
+            </ProtectedRoute>
+        )
     }
 ]);
