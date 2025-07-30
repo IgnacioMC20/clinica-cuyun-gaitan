@@ -53,32 +53,46 @@ export const FormField: React.FC<FormFieldProps> = (props) => {
         switch (type) {
             case 'input':
                 return (
-                    <Input
-                        id={name}
-                        name={name}
-                        type={props.inputType}
-                        value={props.value}
-                        onChange={(e) => props.onChange(e.target.value)}
-                        placeholder={props.placeholder}
-                        error={error}
-                        disabled={disabled}
-                        leftIcon={props.leftIcon}
-                        rightIcon={props.rightIcon}
-                    />
+                    <div className="space-y-2">
+                        <Input
+                            id={name}
+                            name={name}
+                            type={props.inputType}
+                            value={props.value}
+                            onChange={(e) => props.onChange(e.target.value)}
+                            placeholder={props.placeholder}
+                            error={error}
+                            disabled={disabled}
+                            leftIcon={props.leftIcon}
+                            rightIcon={props.rightIcon}
+                        />
+                        {helperText && !error && (
+                            <p className="text-sm text-gray-500">
+                                {helperText}
+                            </p>
+                        )}
+                    </div>
                 );
 
             case 'select':
                 return (
-                    <Select
-                        id={name}
-                        name={name}
-                        options={props.options}
-                        value={props.value}
-                        onChange={(e) => props.onChange(e.target.value)}
-                        placeholder={props.placeholder}
-                        error={error}
-                        disabled={disabled}
-                    />
+                    <div className="space-y-2">
+                        <Select
+                            id={name}
+                            name={name}
+                            options={props.options}
+                            value={props.value}
+                            onChange={(e) => props.onChange(e.target.value)}
+                            placeholder={props.placeholder}
+                            error={error}
+                            disabled={disabled}
+                        />
+                        {helperText && !error && (
+                            <p className="text-sm text-gray-500">
+                                {helperText}
+                            </p>
+                        )}
+                    </div>
                 );
 
             case 'textarea':

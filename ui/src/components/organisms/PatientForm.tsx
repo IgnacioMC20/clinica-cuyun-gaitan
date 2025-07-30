@@ -5,6 +5,7 @@ import { useCreatePatient, useUpdatePatient } from '../../hooks/usePatients';
 import type { PatientResponse, CreatePatientRequest } from '../../../../shared/types/patient';
 import { GENDER_LABELS } from '../../../../shared/types/patient';
 import { useMedicalNotifications } from '../../lib/utils/notifications';
+import { calculateAge, isValidBirthdate } from '../../../../shared/utils/dateUtils';
 
 interface PatientFormProps {
     patient?: PatientResponse;
@@ -17,7 +18,7 @@ interface FormData {
     firstName: string;
     lastName: string;
     address: string;
-    age: number;
+    birthdate: string;
     gender: 'male' | 'female' | 'child';
     maritalStatus: string;
     occupation: string;
@@ -30,7 +31,7 @@ const initialFormData: FormData = {
     firstName: '',
     lastName: '',
     address: '',
-    age: 0,
+    birthdate: '',
     gender: 'male',
     maritalStatus: '',
     occupation: '',
@@ -61,16 +62,20 @@ export const PatientForm: React.FC<PatientFormProps> = ({
             setFormData({
                 firstName: patient.firstName,
                 lastName: patient.lastName,
-                address: patient.address,
-                age: patient.age,
-                gender: patient.gender,
-                maritalStatus: patient.maritalStatus,
-                occupation: patient.occupation,
-                phone: patient.phone,
+                address: patient.address || '',
+                birthdate: patient.birthdate
+                    ? (typeof patient.birthdate === 'string'
+                        ? patient.birthdate.split('T')[0]
+                        : new Date(patient.birthdate).toISOString().split('T')[0])
+                    : '',
+                gender: patient.gender || 'male',
+                maritalStatus: patient.maritalStatus || '',
+                occupation: patient.occupation || '',
+                phone: patient.phone || '',
                 vaccination: patient.vaccination || [],
                 visitDate: typeof patient.visitDate === 'string'
                     ? patient.visitDate.split('T')[0]
-                    : new Date(patient.visitDate).toISOString().split('T')[0],
+                    : new Date(patient.visitDate || new Date()).toISOString().split('T')[0],
             });
         } else {
             setFormData(initialFormData);
@@ -80,6 +85,7 @@ export const PatientForm: React.FC<PatientFormProps> = ({
     const validateForm = (): boolean => {
         const newErrors: Partial<Record<keyof FormData, string>> = {};
 
+        // Solo nombre y apellido son requeridos
         if (!formData.firstName.trim()) {
             newErrors.firstName = 'El nombre es requerido';
         } else if (formData.firstName.length < 2) {
@@ -92,28 +98,12 @@ export const PatientForm: React.FC<PatientFormProps> = ({
             newErrors.lastName = 'El apellido debe tener al menos 2 caracteres';
         }
 
-        if (!formData.address.trim()) {
-            newErrors.address = 'La dirección es requerida';
-        } else if (formData.address.length < 10) {
-            newErrors.address = 'La dirección debe tener al menos 10 caracteres';
+        if (formData.birthdate && !isValidBirthdate(formData.birthdate)) {
+            newErrors.birthdate = 'La fecha de nacimiento debe ser válida y no puede ser futura';
         }
 
-        if (!formData.age || formData.age < 0 || formData.age > 150) {
-            newErrors.age = 'La edad debe estar entre 0 y 150 años';
-        }
-
-        if (!formData.phone.trim()) {
-            newErrors.phone = 'El teléfono es requerido';
-        } else if (formData.phone.length < 8) {
+        if (formData.phone.trim() && formData.phone.length < 8) {
             newErrors.phone = 'El teléfono debe tener al menos 8 dígitos';
-        }
-
-        if (!formData.occupation.trim()) {
-            newErrors.occupation = 'La ocupación es requerida';
-        }
-
-        if (!formData.maritalStatus.trim()) {
-            newErrors.maritalStatus = 'El estado civil es requerido';
         }
 
         setErrors(newErrors);
@@ -129,8 +119,16 @@ export const PatientForm: React.FC<PatientFormProps> = ({
         }
 
         const submitData: CreatePatientRequest = {
-            ...formData,
-            visitDate: formData.visitDate,
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            ...(formData.address?.trim() && { address: formData.address }),
+            ...(formData.birthdate && { birthdate: formData.birthdate }),
+            ...(formData.gender && { gender: formData.gender }),
+            ...(formData.maritalStatus?.trim() && { maritalStatus: formData.maritalStatus }),
+            ...(formData.occupation?.trim() && { occupation: formData.occupation }),
+            ...(formData.phone?.trim() && { phone: formData.phone }),
+            ...(formData.vaccination.length > 0 && { vaccination: formData.vaccination }),
+            ...(formData.visitDate && { visitDate: formData.visitDate }),
         };
 
         try {
@@ -220,15 +218,15 @@ export const PatientForm: React.FC<PatientFormProps> = ({
                             />
                             <FormField
                                 type="input"
-                                label="Edad"
-                                name="age"
-                                inputType="number"
-                                value={formData.age.toString()}
-                                onChange={(value) => handleFieldChange('age', parseInt(value) || 0)}
-                                error={errors.age}
-                                required
+                                label="Fecha de Nacimiento"
+                                name="birthdate"
+                                inputType="date"
+                                value={formData.birthdate}
+                                onChange={(value) => handleFieldChange('birthdate', value)}
+                                error={errors.birthdate}
                                 disabled={isReadOnly}
-                                placeholder="Edad en años"
+                                placeholder="Fecha de nacimiento (opcional)"
+                                helperText={formData.birthdate ? `Edad: ${calculateAge(formData.birthdate)} años` : undefined}
                             />
                             <FormField
                                 label="Género"
@@ -238,8 +236,8 @@ export const PatientForm: React.FC<PatientFormProps> = ({
                                 value={formData.gender}
                                 onChange={(value) => handleFieldChange('gender', value as 'male' | 'female' | 'child')}
                                 error={errors.gender}
-                                required
                                 disabled={isReadOnly}
+                                placeholder="Seleccione género (opcional)"
                             />
                             <FormField
                                 label="Estado Civil"
@@ -249,9 +247,8 @@ export const PatientForm: React.FC<PatientFormProps> = ({
                                 value={formData.maritalStatus}
                                 onChange={(value) => handleFieldChange('maritalStatus', value)}
                                 error={errors.maritalStatus}
-                                required
                                 disabled={isReadOnly}
-                                placeholder="Seleccione estado civil"
+                                placeholder="Seleccione estado civil (opcional)"
                             />
                             <FormField
                                 type="input"
@@ -260,9 +257,8 @@ export const PatientForm: React.FC<PatientFormProps> = ({
                                 value={formData.occupation}
                                 onChange={(value) => handleFieldChange('occupation', value)}
                                 error={errors.occupation}
-                                required
                                 disabled={isReadOnly}
-                                placeholder="Ocupación o profesión"
+                                placeholder="Ocupación o profesión (opcional)"
                             />
                         </div>
                     </div>
@@ -279,9 +275,8 @@ export const PatientForm: React.FC<PatientFormProps> = ({
                                 value={formData.phone}
                                 onChange={(value) => handleFieldChange('phone', value)}
                                 error={errors.phone}
-                                required
                                 disabled={isReadOnly}
-                                placeholder="Número de teléfono"
+                                placeholder="Número de teléfono (opcional)"
                             />
                             <FormField
                                 type="input"
@@ -291,8 +286,8 @@ export const PatientForm: React.FC<PatientFormProps> = ({
                                 value={formData.visitDate}
                                 onChange={(value) => handleFieldChange('visitDate', value)}
                                 error={errors.visitDate}
-                                required
                                 disabled={isReadOnly}
+                                placeholder="Fecha de visita (opcional)"
                             />
                         </div>
                         <div className="mt-4">
@@ -303,9 +298,8 @@ export const PatientForm: React.FC<PatientFormProps> = ({
                                 value={formData.address}
                                 onChange={(value) => handleFieldChange('address', value)}
                                 error={errors.address}
-                                required
                                 disabled={isReadOnly}
-                                placeholder="Dirección completa del paciente"
+                                placeholder="Dirección completa del paciente (opcional)"
                             />
                         </div>
                     </div>

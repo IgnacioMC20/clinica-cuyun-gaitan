@@ -3,6 +3,7 @@ import { Card } from '../atoms/Card';
 import { Badge } from '../atoms/Badge';
 import { Typography } from '../atoms/Typography';
 import { type IPatient, GENDER_LABELS } from '../../../../shared/types/patient';
+import { calculateAge } from '../../../../shared/utils/dateUtils';
 import { cn } from '@/lib/utils';
 
 interface PatientCardProps {
@@ -89,7 +90,7 @@ export const PatientCard: React.FC<PatientCardProps> = ({
 
                     <div className={cn('mt-1 flex items-center space-x-4', compact && 'space-x-2')}>
                         <Typography variant="bodySmall" className="text-gray-500">
-                            {patient.age} años
+                            {calculateAge(patient.birthdate)} años
                         </Typography>
 
                         {!compact && (

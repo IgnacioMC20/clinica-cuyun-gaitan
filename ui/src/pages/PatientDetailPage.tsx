@@ -4,6 +4,7 @@ import { PatientForm, NotesList } from '../components/organisms';
 import { Button, Typography, Card, Spinner } from '../components/atoms';
 import { usePatient, useDeletePatient } from '../hooks/usePatients';
 import type { PatientNote } from '../../../shared/types/patient';
+import { calculateAge } from '../../../shared/utils/dateUtils';
 import { ArrowLeft, Edit, Trash2, FileText } from 'lucide-react';
 
 export const PatientDetailPage: React.FC = () => {
@@ -219,7 +220,7 @@ export const PatientDetailPage: React.FC = () => {
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                             <div className="text-center">
                                 <Typography variant="h2" className="text-primary">
-                                    {patient.age}
+                                    {calculateAge(patient.birthdate)}
                                 </Typography>
                                 <Typography variant="bodySmall" className="text-gray-600">
                                     Años de edad

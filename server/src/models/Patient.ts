@@ -69,24 +69,28 @@ const patientSchema = new Schema<IPatientDocument>({
     },
     address: {
         type: String,
-        required: [true, 'Address is required'],
+        required: false,
         trim: true,
         minlength: [PATIENT_VALIDATION.address.minLength, `Address must be at least ${PATIENT_VALIDATION.address.minLength} characters`],
         maxlength: [PATIENT_VALIDATION.address.maxLength, `Address cannot exceed ${PATIENT_VALIDATION.address.maxLength} characters`]
     },
-    age: {
-        type: Number,
-        required: [true, 'Age is required'],
-        min: [PATIENT_VALIDATION.age.min, `Age must be at least ${PATIENT_VALIDATION.age.min}`],
-        max: [PATIENT_VALIDATION.age.max, `Age cannot exceed ${PATIENT_VALIDATION.age.max}`],
+    birthdate: {
+        type: Date,
+        required: false,
         validate: {
-            validator: Number.isInteger,
-            message: 'Age must be a whole number'
+            validator: function (value: Date) {
+                if (!value) return true; // Optional field
+                const today = new Date();
+                const maxAge = 150;
+                const minDate = new Date(today.getFullYear() - maxAge, 0, 1);
+                return value <= today && value >= minDate;
+            },
+            message: 'Birthdate must be a valid date not in the future and not more than 150 years ago'
         }
     },
     gender: {
         type: String,
-        required: [true, 'Gender is required'],
+        required: false,
         enum: {
             values: ['male', 'female', 'child'],
             message: 'Gender must be one of: male, female, child'
@@ -94,19 +98,19 @@ const patientSchema = new Schema<IPatientDocument>({
     },
     maritalStatus: {
         type: String,
-        required: [true, 'Marital status is required'],
+        required: false,
         trim: true,
         maxlength: [50, 'Marital status cannot exceed 50 characters']
     },
     occupation: {
         type: String,
-        required: [true, 'Occupation is required'],
+        required: false,
         trim: true,
         maxlength: [100, 'Occupation cannot exceed 100 characters']
     },
     phone: {
         type: String,
-        required: [true, 'Phone number is required'],
+        required: false,
         trim: true,
         minlength: [PATIENT_VALIDATION.phone.minLength, `Phone must be at least ${PATIENT_VALIDATION.phone.minLength} characters`],
         maxlength: [PATIENT_VALIDATION.phone.maxLength, `Phone cannot exceed ${PATIENT_VALIDATION.phone.maxLength} characters`],
@@ -124,8 +128,9 @@ const patientSchema = new Schema<IPatientDocument>({
     },
     visitDate: {
         type: Date,
-        required: [true, 'Visit date is required'],
-        index: true
+        required: false,
+        index: true,
+        default: Date.now
     },
     notes: {
         type: [noteSchema],
@@ -161,10 +166,10 @@ const patientSchema = new Schema<IPatientDocument>({
 
 // Indexes for better query performance
 patientSchema.index({ firstName: 1, lastName: 1 }); // Compound index for name searches
-patientSchema.index({ phone: 1 }, { unique: true }); // Unique index for phone
+patientSchema.index({ phone: 1 }, { unique: true, sparse: true }); // Unique index for phone (sparse allows nulls)
 patientSchema.index({ visitDate: -1 }); // Descending index for recent visits
 patientSchema.index({ gender: 1 }); // Index for gender filtering
-patientSchema.index({ age: 1 }); // Index for age filtering
+patientSchema.index({ birthdate: 1 }); // Index for birthdate filtering
 patientSchema.index({ createdAt: -1 }); // Index for recent patients
 
 // Text index for search functionality
@@ -218,6 +223,24 @@ patientSchema.statics.findByName = function (firstName: string, lastName: string
 
 patientSchema.statics.getStats = async function () {
     const stats = await this.aggregate([
+        {
+            $addFields: {
+                age: {
+                    $cond: {
+                        if: { $ne: ['$birthdate', null] },
+                        then: {
+                            $floor: {
+                                $divide: [
+                                    { $subtract: [new Date(), '$birthdate'] },
+                                    365.25 * 24 * 60 * 60 * 1000
+                                ]
+                            }
+                        },
+                        else: 0
+                    }
+                }
+            }
+        },
         {
             $group: {
                 _id: null,

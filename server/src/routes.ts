@@ -9,6 +9,24 @@ const routes: FastifyPluginAsync = async (app) => {
             // Get basic stats using aggregation
             const stats = await Patient.aggregate([
                 {
+                    $addFields: {
+                        age: {
+                            $cond: {
+                                if: { $ne: ['$birthdate', null] },
+                                then: {
+                                    $floor: {
+                                        $divide: [
+                                            { $subtract: [new Date(), '$birthdate'] },
+                                            365.25 * 24 * 60 * 60 * 1000
+                                        ]
+                                    }
+                                },
+                                else: 0
+                            }
+                        }
+                    }
+                },
+                {
                     $group: {
                         _id: null,
                         total: { $sum: 1 },
@@ -80,22 +98,76 @@ const routes: FastifyPluginAsync = async (app) => {
                 filter.gender = gender;
             }
 
-            // Age range filter
-            if (ageMin || ageMax) {
-                filter.age = {};
-                if (ageMin) filter.age.$gte = parseInt(String(ageMin));
-                if (ageMax) filter.age.$lte = parseInt(String(ageMax));
+            // Age range filter - we'll need to use aggregation for this
+            let pipeline: any[] = [];
+
+            // Start with match stage for other filters
+            if (Object.keys(filter).length > 0) {
+                pipeline.push({ $match: filter });
             }
 
+            // Add age calculation if age filtering is needed
+            if (ageMin || ageMax) {
+                pipeline.push({
+                    $addFields: {
+                        calculatedAge: {
+                            $cond: {
+                                if: { $ne: ['$birthdate', null] },
+                                then: {
+                                    $floor: {
+                                        $divide: [
+                                            { $subtract: [new Date(), '$birthdate'] },
+                                            365.25 * 24 * 60 * 60 * 1000
+                                        ]
+                                    }
+                                },
+                                else: 0
+                            }
+                        }
+                    }
+                });
+
+                const ageFilter: any = {};
+                if (ageMin) ageFilter.$gte = parseInt(String(ageMin));
+                if (ageMax) ageFilter.$lte = parseInt(String(ageMax));
+
+                pipeline.push({
+                    $match: { calculatedAge: ageFilter }
+                });
+            }
+
+            // Add sorting and pagination
+            pipeline.push(
+                { $sort: { createdAt: -1 } },
+                { $skip: offsetNum },
+                { $limit: limitNum }
+            );
+
             // Execute query with pagination
-            const [patients, total] = await Promise.all([
-                Patient.find(filter)
-                    .sort({ createdAt: -1 })
-                    .limit(limitNum)
-                    .skip(offsetNum)
-                    .lean(),
-                Patient.countDocuments(filter)
-            ]);
+            let patients, total;
+
+            if (pipeline.length > 0) {
+                // Use aggregation pipeline for age filtering
+                const [patientsResult, totalResult] = await Promise.all([
+                    Patient.aggregate(pipeline),
+                    Patient.aggregate([
+                        ...pipeline.slice(0, -2), // Remove skip and limit for count
+                        { $count: "total" }
+                    ])
+                ]);
+                patients = patientsResult;
+                total = totalResult[0]?.total || 0;
+            } else {
+                // Use simple find for non-age filtering
+                [patients, total] = await Promise.all([
+                    Patient.find(filter)
+                        .sort({ createdAt: -1 })
+                        .limit(limitNum)
+                        .skip(offsetNum)
+                        .lean(),
+                    Patient.countDocuments(filter)
+                ]);
+            }
 
             // Transform response
             const response = {
@@ -144,6 +216,7 @@ const routes: FastifyPluginAsync = async (app) => {
                 createdAt: (patient as any).createdAt.toISOString(),
                 updatedAt: (patient as any).updatedAt.toISOString(),
                 visitDate: new Date((patient as any).visitDate).toISOString(),
+                ...((patient as any).birthdate && { birthdate: new Date((patient as any).birthdate).toISOString() }),
                 notes: (patient as any).notes?.map((note: any) => ({
                     ...note.toObject(),
                     id: note._id.toString(),
@@ -207,6 +280,7 @@ const routes: FastifyPluginAsync = async (app) => {
             // Create new patient
             const patient = new Patient({
                 ...patientData,
+                ...(patientData.birthdate && { birthdate: new Date(patientData.birthdate) }),
                 visitDate: new Date(patientData.visitDate),
                 notes: patientData.notes?.map((note: any) => ({
                     ...note,
@@ -258,9 +332,12 @@ const routes: FastifyPluginAsync = async (app) => {
             // Remove id from update data
             delete updateData.id;
 
-            // Convert visitDate if provided
+            // Convert dates if provided
             if (updateData.visitDate) {
                 updateData.visitDate = new Date(updateData.visitDate);
+            }
+            if (updateData.birthdate) {
+                updateData.birthdate = new Date(updateData.birthdate);
             }
 
             const patient = await Patient.findByIdAndUpdate(
@@ -374,7 +451,8 @@ const routes: FastifyPluginAsync = async (app) => {
                 id: patient._id.toString(),
                 createdAt: patient.createdAt.toISOString(),
                 updatedAt: patient.updatedAt.toISOString(),
-                visitDate: new Date(patient.visitDate).toISOString()
+                visitDate: new Date(patient.visitDate).toISOString(),
+                ...(patient.birthdate && { birthdate: new Date(patient.birthdate).toISOString() })
             };
 
             return reply.send(response);

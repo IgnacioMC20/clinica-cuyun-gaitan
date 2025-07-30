@@ -12,15 +12,15 @@ export interface IPatient {
     id?: string;
     firstName: string;
     lastName: string;
-    address: string;
-    age: number;
-    gender: 'male' | 'female' | 'child';
-    maritalStatus: string;
-    occupation: string;
-    phone: string;
-    vaccination: string[];
-    visitDate: Date | string;
-    notes: PatientNote[];
+    address?: string;
+    birthdate?: Date | string;
+    gender?: 'male' | 'female' | 'child';
+    maritalStatus?: string;
+    occupation?: string;
+    phone?: string;
+    vaccination?: string[];
+    visitDate?: Date | string;
+    notes?: PatientNote[];
     createdAt?: Date | string;
     updatedAt?: Date | string;
 }
@@ -36,14 +36,14 @@ export interface IPatientDocument extends IPatient {
 export interface CreatePatientRequest {
     firstName: string;
     lastName: string;
-    address: string;
-    age: number;
-    gender: 'male' | 'female' | 'child';
-    maritalStatus: string;
-    occupation: string;
-    phone: string;
+    address?: string;
+    birthdate?: string; // ISO date string
+    gender?: 'male' | 'female' | 'child';
+    maritalStatus?: string;
+    occupation?: string;
+    phone?: string;
     vaccination?: string[];
-    visitDate: string; // ISO date string
+    visitDate?: string; // ISO date string
     notes?: Omit<PatientNote, 'id' | 'date'>[];
 }
 
@@ -100,19 +100,19 @@ export const PATIENT_VALIDATION = {
         maxLength: 50,
         pattern: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/
     },
-    age: {
-        required: true,
-        min: 0,
-        max: 150
+    birthdate: {
+        required: false,
+        minAge: new Date(new Date().getFullYear() - 150, 0, 1), // 150 years ago
+        maxAge: new Date() // Today
     },
     phone: {
-        required: true,
+        required: false,
         pattern: /^[\d\-\+\(\)\s]+$/,
         minLength: 8,
         maxLength: 20
     },
     address: {
-        required: true,
+        required: false,
         minLength: 10,
         maxLength: 200
     }

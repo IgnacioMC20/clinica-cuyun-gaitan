@@ -48,5 +48,10 @@ export const router = createBrowserRouter([
                 <PatientDetailPage />
             </ProtectedRoute>
         )
+    },
+    // every other route goes to the dashboard
+    {
+        path: '*',
+        element: <Navigate to="/tablero" replace />
     }
 ]);

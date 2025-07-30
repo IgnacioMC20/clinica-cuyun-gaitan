@@ -6,6 +6,7 @@ import { usePatients } from '../hooks/usePatients';
 import { useMedicalNotifications } from '../lib/utils/notifications';
 import type { PatientResponse } from '../../../shared/types/patient';
 import { GENDER_LABELS } from '../../../shared/types/patient';
+import { calculateAge } from '../../../shared/utils/dateUtils';
 import {
     Users,
     Plus,
@@ -69,7 +70,8 @@ export const AllPatientsPage: React.FC = () => {
             const matchesGender = filters.gender === 'all' || patient.gender === filters.gender;
 
             // Age range filter
-            const matchesAge = patient.age >= filters.ageRange.min && patient.age <= filters.ageRange.max;
+            const patientAge = calculateAge(patient.birthdate);
+            const matchesAge = patientAge >= filters.ageRange.min && patientAge <= filters.ageRange.max;
 
             return matchesSearch && matchesGender && matchesAge;
         });
@@ -85,8 +87,8 @@ export const AllPatientsPage: React.FC = () => {
                     bValue = `${b.firstName} ${b.lastName}`.toLowerCase();
                     break;
                 case 'age':
-                    aValue = a.age;
-                    bValue = b.age;
+                    aValue = calculateAge(a.birthdate);
+                    bValue = calculateAge(b.birthdate);
                     break;
                 case 'visitDate':
                     aValue = new Date(a.visitDate).getTime();

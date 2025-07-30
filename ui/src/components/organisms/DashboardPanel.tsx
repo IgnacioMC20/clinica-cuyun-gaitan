@@ -4,6 +4,7 @@ import { StatsCard } from '../molecules';
 import { usePatients } from '../../hooks/usePatients';
 import { statsApi } from '../../lib/api/patients';
 import { useQuery } from '@tanstack/react-query';
+import { calculateAge } from '../../../../shared/utils/dateUtils';
 import { Users, UserPlus, Activity } from 'lucide-react';
 
 interface DashboardPanelProps {
@@ -195,7 +196,7 @@ export const DashboardPanel: React.FC<DashboardPanelProps> = ({
                                             {patient.firstName} {patient.lastName}
                                         </Typography>
                                         <Typography variant="bodySmall" className="text-muted-foreground">
-                                            {patient.age} años • {patient.phone}
+                                            {calculateAge(patient.birthdate)} años • {patient.phone}
                                         </Typography>
                                     </div>
                                 </div>

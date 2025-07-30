@@ -28,12 +28,17 @@ async function apiRequest<T>(
 ): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
 
+    const { body, headers, ...rest } = options;
+
     const config: RequestInit = {
+        ...rest,
+        body,
         headers: {
-            'Content-Type': 'application/json',
-            ...options.headers,
-        },
-        ...options,
+            ...headers,
+            ...(body && !headers?.['Content-Type'] && {
+                'Content-Type': 'application/json'
+            })
+        }
     };
 
     try {
@@ -54,13 +59,13 @@ async function apiRequest<T>(
             throw error;
         }
 
-        // Network or other errors
         throw new ApiError(
             error instanceof Error ? error.message : 'Network error occurred',
             0
         );
     }
 }
+
 
 // Patient API functions
 export const patientsApi = {
