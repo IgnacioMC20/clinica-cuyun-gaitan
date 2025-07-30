@@ -16,7 +16,7 @@ export const PatientDetailPage: React.FC = () => {
     const deletePatientMutation = useDeletePatient();
 
     const handleBack = () => {
-        navigate('/');
+        navigate('/tablero');
     };
 
     const handleEdit = () => {
@@ -37,7 +37,7 @@ export const PatientDetailPage: React.FC = () => {
 
         try {
             await deletePatientMutation.mutateAsync(patient.id);
-            navigate('/');
+            navigate('/tablero');
         } catch (error) {
             console.error('Error deleting patient:', error);
         }

@@ -33,9 +33,9 @@ export default function Navbar() {
   }
 
   const navLinks = [
-    { to: "/", label: "Dashboard" },
-    { to: "/patients", label: "All Patients" },
-    { to: "/patient/new", label: "New Patient" },
+    { to: "/tablero", label: "Dashboard" },
+    { to: "/pacientes", label: "All Patients" },
+    { to: "/paciente/nuevo", label: "New Patient" },
   ];
 
   return (
@@ -49,7 +49,7 @@ export default function Navbar() {
         onClick={handleNavClick}
       >
         <div className="flex items-center gap-8">
-          <Link to='/'>
+          <Link to='/tablero'>
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}

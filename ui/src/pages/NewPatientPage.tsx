@@ -9,16 +9,16 @@ export const NewPatientPage: React.FC = () => {
     const navigate = useNavigate();
 
     const handleBack = () => {
-        navigate('/');
+        navigate('/tablero');
     };
 
     const handleSuccess = (patient: PatientResponse) => {
         // Navigate to the newly created patient's detail page
-        navigate(`/patient/${patient.id}`);
+        navigate(`/paciente/${patient.id}`);
     };
 
     const handleCancel = () => {
-        navigate('/');
+        navigate('/tablero');
     };
 
     return (

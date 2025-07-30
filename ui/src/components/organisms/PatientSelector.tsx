@@ -24,20 +24,29 @@ export const PatientSelector: React.FC<PatientSelectorProps> = ({
         offset: 0
     });
 
+    const safeSetSearchParams = (
+        updater: (prev: Partial<PatientSearchParams>) => Partial<PatientSearchParams>
+    ) => {
+        setSearchParams(prev => {
+            const next = updater(prev);
+            return JSON.stringify(prev) === JSON.stringify(next) ? prev : next;
+        });
+    };
+
     const { data: patientsData, isLoading, error, isError } = usePatients(searchParams);
-    console.log('Patients data:', { data: patientsData, isLoading, error, isError });
+    console.log('PatientSelector:', { data: patientsData, isLoading, error, isError });
 
     const handleSearch = (query: string) => {
-        setSearchParams(prev => ({
+        safeSetSearchParams(prev => ({
             ...prev,
             query: query.trim() || undefined,
-            offset: 0 // Reset to first page when searching
+            offset: 0
         }));
     };
 
     const handleLoadMore = () => {
         if (patientsData && patientsData.patients.length < patientsData.total) {
-            setSearchParams(prev => ({
+            safeSetSearchParams(prev => ({
                 ...prev,
                 offset: (prev.offset || 0) + (prev.limit || 20)
             }));
@@ -76,7 +85,6 @@ export const PatientSelector: React.FC<PatientSelectorProps> = ({
 
     return (
         <Card className="flex flex-col h-full">
-            {/* Header */}
             <div className="p-4 border-b">
                 <div className="flex items-center justify-between mb-4">
                     <Typography variant="h3">
@@ -101,7 +109,6 @@ export const PatientSelector: React.FC<PatientSelectorProps> = ({
                 />
             </div>
 
-            {/* Patient List */}
             <div
                 className="flex-1 overflow-y-auto p-4"
                 style={{ maxHeight }}
@@ -154,7 +161,6 @@ export const PatientSelector: React.FC<PatientSelectorProps> = ({
                             </div>
                         ))}
 
-                        {/* Load More Button */}
                         {hasMorePatients && (
                             <div className="pt-4 text-center">
                                 <Button
@@ -168,7 +174,6 @@ export const PatientSelector: React.FC<PatientSelectorProps> = ({
                             </div>
                         )}
 
-                        {/* Loading indicator for pagination */}
                         {isLoading && patientsData && (
                             <div className="flex items-center justify-center py-4">
                                 <Spinner size="sm" />
@@ -181,7 +186,6 @@ export const PatientSelector: React.FC<PatientSelectorProps> = ({
                 )}
             </div>
 
-            {/* Footer with summary */}
             {patientsData && patientsData.patients.length > 0 && (
                 <div className="p-4 border-t bg-muted/10">
                     <Typography variant="bodySmall" className="text-muted-foreground text-center">

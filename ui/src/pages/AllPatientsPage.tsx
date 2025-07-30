@@ -126,7 +126,7 @@ export const AllPatientsPage: React.FC = () => {
     };
 
     const handlePatientClick = (patient: PatientResponse) => {
-        navigate(`/patient/${patient.id}`);
+        navigate(`/paciente/${patient.id}`);
     };
 
     if (error) {
@@ -149,7 +149,7 @@ export const AllPatientsPage: React.FC = () => {
                             <div className="flex items-center space-x-4">
                                 <Button
                                     variant="ghost"
-                                    onClick={() => navigate('/')}
+                                    onClick={() => navigate('/tablero')}
                                     className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
                                 >
                                     <ArrowLeft className="w-4 h-4" />
@@ -164,7 +164,7 @@ export const AllPatientsPage: React.FC = () => {
                                     </Typography>
                                 </div>
                             </div>
-                            <Link to="/patient/new">
+                            <Link to="/paciente/nuevo">
                                 <Button className="flex items-center space-x-2">
                                     <Plus className="w-4 h-4" />
                                     <span>Nuevo Paciente</span>
@@ -357,7 +357,7 @@ export const AllPatientsPage: React.FC = () => {
                         <Typography variant="body" className="text-gray-500 mb-6">
                             Comience agregando el primer paciente al sistema.
                         </Typography>
-                        <Link to="/patient/new">
+                        <Link to="/paciente/nuevo">
                             <Button className="flex items-center space-x-2 mx-auto">
                                 <Plus className="w-4 h-4" />
                                 <span>Agregar Primer Paciente</span>

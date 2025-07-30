@@ -9,11 +9,11 @@ export const DashboardPage: React.FC = () => {
     const navigate = useNavigate();
 
     const handleCreatePatient = () => {
-        navigate('/patient/new');
+        navigate('/paciente/nuevo');
     };
 
     const handleViewAllPatients = () => {
-        navigate(`/patients`);
+        navigate(`/pacientes`);
     };
 
     const handleViewRecentVisits = () => {
@@ -23,7 +23,7 @@ export const DashboardPage: React.FC = () => {
 
     const handlePatientSelect = (patient: PatientResponse) => {
         setSelectedPatient(patient);
-        navigate(`/patient/${patient.id}`);
+        navigate(`/paciente/${patient.id}`);
     };
 
     return (

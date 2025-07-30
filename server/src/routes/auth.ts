@@ -3,18 +3,14 @@ import { auth } from '../auth/lucia';
 import { User } from '../models/authModels';
 import { randomUUID } from 'crypto';
 import argon2 from 'argon2';
+import logger from '../utils/logger';
 
-declare module 'fastify' {
-    interface FastifyReply {
-        setCookie(name: string, value: string, options?: any): this;
-        clearCookie(name: string, options?: any): this;
-    }
-}
+// @fastify/cookie already provides setCookie and clearCookie methods
 
 const authRoutes: FastifyPluginAsync = async (app) => {
     // Sign up
     app.post('/signup', async (req, reply) => {
-        console.log('Received signup request:', req.body);
+        logger.auth('Solicitud de registro recibida');
         try {
             const { email, password, role } = req.body as {
                 email: string;
@@ -22,7 +18,7 @@ const authRoutes: FastifyPluginAsync = async (app) => {
                 role?: 'admin' | 'doctor' | 'nurse' | 'assistant';
             };
 
-            console.log('Signup request:', { email, password, role });
+            logger.debug(`Registro: ${email}, rol: ${role || 'assistant'}`);
 
             if (!email || !password) {
                 return reply.code(400).send({
@@ -59,14 +55,26 @@ const authRoutes: FastifyPluginAsync = async (app) => {
                 process.env.NODE_ENV === 'production'
             );
 
+            console.log('=== SIGNUP DEBUG ===');
+            console.log('User created:', userId);
+            console.log('Session created:', session.id);
+            console.log('Cookie to set:', {
+                name: cookie.name,
+                value: cookie.value,
+                attributes: cookie.attributes
+            });
+
             reply.setCookie(cookie.name, cookie.value, cookie.attributes);
+
+            console.log('Cookie set successfully');
+            console.log('====================');
 
             return reply.code(201).send({
                 message: 'User created successfully',
                 user: { id: userId, email, role: role || 'assistant' }
             });
         } catch (error) {
-            console.log('===error', error)
+            logger.error('Error en registro de usuario');
             req.log.error('Signup error:', error);
             return reply.code(500).send({
                 error: 'Internal Server Error',
@@ -112,7 +120,18 @@ const authRoutes: FastifyPluginAsync = async (app) => {
                 process.env.NODE_ENV === 'production'
             );
 
+            console.log('=== LOGIN DEBUG ===');
+            console.log('Session created:', session.id);
+            console.log('Cookie to set:', {
+                name: cookie.name,
+                value: cookie.value,
+                attributes: cookie.attributes
+            });
+
             reply.setCookie(cookie.name, cookie.value, cookie.attributes);
+
+            console.log('Cookie set successfully');
+            console.log('===================');
 
             return reply.send({
                 message: 'Logged in successfully',
@@ -146,8 +165,26 @@ const authRoutes: FastifyPluginAsync = async (app) => {
         }
     });
 
+    // Test endpoint (no auth required)
+    app.get('/test', async (req, reply) => {
+        return reply.send({
+            message: 'Auth routes working',
+            timestamp: new Date().toISOString(),
+            cookies: req.cookies || {},
+            headers: {
+                cookie: req.headers.cookie || 'none'
+            }
+        });
+    });
+
     // Current user
     app.get('/me', async (req, reply) => {
+        console.log('=== /me ENDPOINT DEBUG ===');
+        console.log('Cookies:', req.cookies);
+        console.log('User:', req.user);
+        console.log('Session:', req.session);
+        console.log('==========================');
+
         if (!req.user) {
             return reply.code(401).send({
                 error: 'Unauthorized',

@@ -22,12 +22,12 @@ export default function Footer() {
             <h3 className="text-lg font-semibold mb-4 text-gray-900">Navegación</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/" className="text-gray-600 hover:text-blue-600 transition-colors text-sm">
+                <Link to="/tablero" className="text-gray-600 hover:text-blue-600 transition-colors text-sm">
                   Dashboard
                 </Link>
               </li>
               <li>
-                <Link to="/patient/new" className="text-gray-600 hover:text-blue-600 transition-colors text-sm">
+                <Link to="/paciente/nuevo" className="text-gray-600 hover:text-blue-600 transition-colors text-sm">
                   Nuevo Paciente
                 </Link>
               </li>
