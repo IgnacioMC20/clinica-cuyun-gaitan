@@ -6,28 +6,16 @@ export default fp(async (app) => {
 
   app.addHook('preHandler', async (request, reply) => {
     try {
-      // Debug logging
-      console.log('=== Auth PreHandler Debug ===');
-      console.log('Request URL:', request.url);
-      console.log('Request cookies:', request.cookies);
-      console.log('Raw headers:', request.headers.cookie);
-
       const sessionId = request.cookies?.session || '';
-      console.log('Session ID from cookie:', sessionId);
 
       if (!sessionId) {
-        console.log('No session ID found in cookies');
+
         request.user = null;
         request.session = null;
         return;
       }
 
       const { session, user } = await auth.validateSession(sessionId);
-      console.log('Session validation result:', { session: !!session, user: !!user });
-
-      if (user) {
-        console.log('User found:', { id: user.id, email: user.email, role: user.role });
-      }
 
       request.user = user;
       request.session = session;

@@ -71,13 +71,11 @@ export const NotesList: React.FC<NotesListProps> = ({
     };
 
     const handleDeleteNote = (noteId: string) => {
-        console.log(`Deleting note: ${noteId}`);
         setNoteToDelete(noteId);
         setShowDeleteConfirm(true);
     };
 
     const confirmDeleteNote = async () => {
-        console.log(`noteToDelete ${noteToDelete}`)
         if (!noteToDelete) return;
 
         try {

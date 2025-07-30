@@ -55,19 +55,7 @@ const authRoutes: FastifyPluginAsync = async (app) => {
                 process.env.NODE_ENV === 'production'
             );
 
-            console.log('=== SIGNUP DEBUG ===');
-            console.log('User created:', userId);
-            console.log('Session created:', session.id);
-            console.log('Cookie to set:', {
-                name: cookie.name,
-                value: cookie.value,
-                attributes: cookie.attributes
-            });
-
             reply.setCookie(cookie.name, cookie.value, cookie.attributes);
-
-            console.log('Cookie set successfully');
-            console.log('====================');
 
             return reply.code(201).send({
                 message: 'User created successfully',
@@ -120,18 +108,7 @@ const authRoutes: FastifyPluginAsync = async (app) => {
                 process.env.NODE_ENV === 'production'
             );
 
-            console.log('=== LOGIN DEBUG ===');
-            console.log('Session created:', session.id);
-            console.log('Cookie to set:', {
-                name: cookie.name,
-                value: cookie.value,
-                attributes: cookie.attributes
-            });
-
             reply.setCookie(cookie.name, cookie.value, cookie.attributes);
-
-            console.log('Cookie set successfully');
-            console.log('===================');
 
             return reply.send({
                 message: 'Logged in successfully',
@@ -179,11 +156,6 @@ const authRoutes: FastifyPluginAsync = async (app) => {
 
     // Current user
     app.get('/me', async (req, reply) => {
-        console.log('=== /me ENDPOINT DEBUG ===');
-        console.log('Cookies:', req.cookies);
-        console.log('User:', req.user);
-        console.log('Session:', req.session);
-        console.log('==========================');
 
         if (!req.user) {
             return reply.code(401).send({

@@ -34,7 +34,6 @@ export const PatientSelector: React.FC<PatientSelectorProps> = ({
     };
 
     const { data: patientsData, isLoading, error, isError } = usePatients(searchParams);
-    console.log('PatientSelector:', { data: patientsData, isLoading, error, isError });
 
     const handleSearch = (query: string) => {
         safeSetSearchParams(prev => ({
