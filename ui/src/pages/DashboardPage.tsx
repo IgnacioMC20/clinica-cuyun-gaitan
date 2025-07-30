@@ -3,6 +3,7 @@ import { DashboardPanel, PatientSelector } from '../components/organisms';
 import { Typography } from '../components/atoms';
 import type { PatientResponse } from '../../../shared/types/patient';
 import { useNavigate } from 'react-router-dom';
+import TestErrorComponent from '@/components/TestErrorComponent';
 
 export const DashboardPage: React.FC = () => {
     const [selectedPatient, setSelectedPatient] = useState<PatientResponse | null>(null);
