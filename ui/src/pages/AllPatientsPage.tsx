@@ -57,51 +57,52 @@ export const AllPatientsPage: React.FC = () => {
 
     // Filter and sort patients
     const filteredAndSortedPatients = useMemo(() => {
+        const searchTerm = (filters.search ?? '').toLowerCase();
+
         const filtered = patients.filter((patient: PatientResponse) => {
-            // Search filter
-            const searchTerm = filters.search.toLowerCase();
-            const matchesSearch = !searchTerm ||
-                patient.firstName.toLowerCase().includes(searchTerm) ||
-                patient.lastName.toLowerCase().includes(searchTerm) ||
-                patient.phone.includes(searchTerm) ||
-                patient.address.toLowerCase().includes(searchTerm);
+            const firstName = patient.firstName ?? '';
+            const lastName = patient.lastName ?? '';
+            const phone = patient.phone ?? '';
+            const address = patient.address ?? '';
+            const gender = patient.gender ?? '';
+            const birthdate = patient.birthdate ?? '';
 
-            // Gender filter
-            const matchesGender = filters.gender === 'all' || patient.gender === filters.gender;
+            const matchesSearch =
+                !searchTerm ||
+                firstName.toLowerCase().includes(searchTerm) ||
+                lastName.toLowerCase().includes(searchTerm) ||
+                phone.includes(searchTerm) ||
+                address.toLowerCase().includes(searchTerm);
 
-            // Age range filter
-            const patientAge = calculateAge(patient.birthdate);
-            const matchesAge = patientAge >= filters.ageRange.min && patientAge <= filters.ageRange.max;
+            const matchesGender = filters.gender === 'all' || gender === filters.gender;
+
+            const patientAge = calculateAge(birthdate);
+            const matchesAge =
+                typeof patientAge === 'number' &&
+                patientAge >= filters.ageRange.min &&
+                patientAge <= filters.ageRange.max;
 
             return matchesSearch && matchesGender && matchesAge;
         });
 
-        // Sort patients
-        filtered.sort((a: PatientResponse, b: PatientResponse) => {
-            let aValue: string | number;
-            let bValue: string | number;
+        filtered.sort((a, b) => {
+            const getValue = (patient: PatientResponse) => {
+                switch (filters.sortField) {
+                    case 'name':
+                        return `${patient.firstName ?? ''} ${patient.lastName ?? ''}`.toLowerCase();
+                    case 'age':
+                        return calculateAge(patient.birthdate ?? '');
+                    case 'visitDate':
+                        return new Date(patient.visitDate ?? '').getTime();
+                    case 'phone':
+                        return patient.phone ?? '';
+                    default:
+                        return (patient.firstName ?? '').toLowerCase();
+                }
+            };
 
-            switch (filters.sortField) {
-                case 'name':
-                    aValue = `${a.firstName} ${a.lastName}`.toLowerCase();
-                    bValue = `${b.firstName} ${b.lastName}`.toLowerCase();
-                    break;
-                case 'age':
-                    aValue = calculateAge(a.birthdate);
-                    bValue = calculateAge(b.birthdate);
-                    break;
-                case 'visitDate':
-                    aValue = new Date(a.visitDate).getTime();
-                    bValue = new Date(b.visitDate).getTime();
-                    break;
-                case 'phone':
-                    aValue = a.phone;
-                    bValue = b.phone;
-                    break;
-                default:
-                    aValue = a.firstName.toLowerCase();
-                    bValue = b.firstName.toLowerCase();
-            }
+            const aValue = getValue(a);
+            const bValue = getValue(b);
 
             if (aValue < bValue) return filters.sortOrder === 'asc' ? -1 : 1;
             if (aValue > bValue) return filters.sortOrder === 'asc' ? 1 : -1;
@@ -110,6 +111,7 @@ export const AllPatientsPage: React.FC = () => {
 
         return filtered;
     }, [patients, filters]);
+
 
     const handleFilterChange = (key: keyof FilterState, value: string | number | GenderFilter | { min: number; max: number }) => {
         setFilters(prev => ({ ...prev, [key]: value }));

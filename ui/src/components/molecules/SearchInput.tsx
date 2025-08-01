@@ -21,6 +21,11 @@ export const SearchInput: React.FC<SearchInputProps> = ({
 }) => {
     const [query, setQuery] = useState(initialValue);
 
+    // Sync internal state with initialValue changes
+    useEffect(() => {
+        setQuery(initialValue);
+    }, [initialValue]);
+
     useEffect(() => {
         const timer = setTimeout(() => {
             onSearch(query);
@@ -46,30 +51,6 @@ export const SearchInput: React.FC<SearchInputProps> = ({
         </svg>
     );
 
-    const clearIcon = query && (
-        <button
-            type="button"
-            onClick={() => setQuery('')}
-            className="hover:text-gray-700 transition-colors"
-            aria-label="Limpiar búsqueda"
-        >
-            <svg
-                className="h-4 w-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-            >
-                <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                />
-            </svg>
-        </button>
-    );
-
     return (
         <Input
             type="search"
@@ -77,7 +58,6 @@ export const SearchInput: React.FC<SearchInputProps> = ({
             onChange={(e) => setQuery(e.target.value)}
             placeholder={placeholder}
             leftIcon={searchIcon}
-            rightIcon={clearIcon}
             disabled={disabled}
             className={cn('pr-10', className)}
         />
