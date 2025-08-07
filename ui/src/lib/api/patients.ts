@@ -33,6 +33,7 @@ async function apiRequest<T>(
     const config: RequestInit = {
         ...rest,
         body,
+        credentials: 'include', // Include cookies for session authentication
         headers: {
             ...headers,
             ...(body && !headers?.['Content-Type'] && {
