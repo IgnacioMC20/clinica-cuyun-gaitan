@@ -29,6 +29,7 @@
     "mongoose": "^8.16.4"
   },
   "devDependencies": {
+    "@vercel/node": "^3.0.0",
     "@types/cookie": "^1.0.0",
     "@types/jest": "^30.0.0",
     "@types/mongoose": "^5.11.97",
