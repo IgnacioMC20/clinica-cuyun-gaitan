@@ -1,17 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card } from '../atoms/Card';
 import { Typography } from '../atoms/Typography';
 import { Button } from '../atoms/Button';
+import { Input } from '../atoms/Input';
 import { type PatientNote } from '../../../../shared/types/patient';
 import { cn } from '@/lib/utils';
 
 interface NoteItemProps {
     note: PatientNote;
-    onEdit?: () => void;
+    onEdit?: (noteId: string, updatedNote: { title: string; content: string }) => void;
     onDelete?: () => void;
     showActions?: boolean;
     compact?: boolean;
     className?: string;
+    isUpdating?: boolean;
 }
 
 export const NoteItem: React.FC<NoteItemProps> = ({
@@ -20,8 +22,37 @@ export const NoteItem: React.FC<NoteItemProps> = ({
     onDelete,
     showActions = true,
     compact = false,
-    className
+    className,
+    isUpdating = false
 }) => {
+    const [isEditing, setIsEditing] = useState(false);
+    const [editTitle, setEditTitle] = useState(note.title);
+    const [editContent, setEditContent] = useState(note.content);
+
+    const handleStartEdit = () => {
+        setEditTitle(note.title);
+        setEditContent(note.content);
+        setIsEditing(true);
+    };
+
+    const handleCancelEdit = () => {
+        setEditTitle(note.title);
+        setEditContent(note.content);
+        setIsEditing(false);
+    };
+
+    const handleSaveEdit = () => {
+        if (!editTitle.trim() || !editContent.trim()) {
+            return;
+        }
+
+        onEdit?.(note.id || '', {
+            title: editTitle.trim(),
+            content: editContent.trim()
+        });
+        setIsEditing(false);
+    };
+
     const formatDate = (date: Date | string) => {
         const dateObj = typeof date === 'string' ? new Date(date) : date;
         return dateObj.toLocaleDateString('es-GT', {
@@ -94,25 +125,30 @@ export const NoteItem: React.FC<NoteItemProps> = ({
 
                     {showActions && (onEdit || onDelete) && (
                         <div className="flex items-center space-x-2 ml-4">
-                            {onEdit && (
+                            {onEdit && !isEditing && (
                                 <Button
                                     variant="ghost"
                                     size="sm"
-                                    onClick={onEdit}
+                                    onClick={() => {
+                                        console.log('Edit note:', note.id);
+                                        handleStartEdit();
+                                    }}
                                     className="h-8 w-8 p-0"
                                     aria-label="Editar nota"
+                                    disabled={isUpdating}
                                 >
                                     {editIcon}
                                 </Button>
                             )}
 
-                            {onDelete && (
+                            {onDelete && !isEditing && (
                                 <Button
                                     variant="ghost"
                                     size="sm"
                                     onClick={onDelete}
                                     className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
                                     aria-label="Eliminar nota"
+                                    disabled={isUpdating}
                                 >
                                     {deleteIcon}
                                 </Button>
@@ -121,14 +157,62 @@ export const NoteItem: React.FC<NoteItemProps> = ({
                     )}
                 </div>
 
-                <div className="prose prose-sm max-w-none">
-                    <Typography
-                        variant={compact ? 'bodySmall' : 'body'}
-                        className="text-gray-700 whitespace-pre-wrap"
-                    >
-                        {note.content}
-                    </Typography>
-                </div>
+                {isEditing ? (
+                    <div className="space-y-4">
+                        <div>
+                            <Typography variant="label" className="mb-2 block">
+                                Título
+                            </Typography>
+                            <Input
+                                value={editTitle}
+                                onChange={(e) => setEditTitle(e.target.value)}
+                                placeholder="Título de la nota"
+                                className="w-full"
+                                disabled={isUpdating}
+                            />
+                        </div>
+                        <div>
+                            <Typography variant="label" className="mb-2 block">
+                                Contenido
+                            </Typography>
+                            <textarea
+                                value={editContent}
+                                onChange={(e) => setEditContent(e.target.value)}
+                                placeholder="Contenido de la nota"
+                                className="w-full min-h-[100px] p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-vertical"
+                                rows={4}
+                                disabled={isUpdating}
+                            />
+                        </div>
+                        <div className="flex justify-end space-x-2">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={handleCancelEdit}
+                                disabled={isUpdating}
+                            >
+                                Cancelar
+                            </Button>
+                            <Button
+                                size="sm"
+                                onClick={handleSaveEdit}
+                                disabled={!editTitle.trim() || !editContent.trim() || isUpdating}
+                                loading={isUpdating}
+                            >
+                                Guardar
+                            </Button>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="prose prose-sm max-w-none">
+                        <Typography
+                            variant={compact ? 'bodySmall' : 'body'}
+                            className="text-gray-700 whitespace-pre-wrap"
+                        >
+                            {note.content}
+                        </Typography>
+                    </div>
+                )}
             </div>
         </Card>
     );

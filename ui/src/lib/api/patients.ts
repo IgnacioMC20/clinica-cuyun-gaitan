@@ -122,6 +122,14 @@ export const patientsApi = {
         });
     },
 
+    // Update note from patient
+    async updateNote(patientId: string, noteId: string, note: { title: string; content: string }): Promise<PatientResponse> {
+        return apiRequest<PatientResponse>(`/patients/${patientId}/notes/${noteId}`, {
+            method: 'PUT',
+            body: JSON.stringify(note),
+        });
+    },
+
     // Delete note from patient
     async deleteNote(patientId: string, noteId: string): Promise<PatientResponse> {
         return apiRequest<PatientResponse>(`/patients/${patientId}/notes/${noteId}`, {

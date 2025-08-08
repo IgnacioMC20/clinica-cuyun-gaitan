@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card, Typography, Button, Input } from '../atoms';
 import { NoteItem } from '../molecules';
-import { useAddPatientNote, useDeletePatientNote } from '../../hooks/usePatients';
+import { useAddPatientNote, useDeletePatientNote, useUpdatePatientNote } from '../../hooks/usePatients';
 import type { PatientResponse, PatientNote } from '../../../../shared/types/patient';
 import { Plus, FileText } from 'lucide-react';
 
@@ -29,6 +29,7 @@ export const NotesList: React.FC<NotesListProps> = ({
     const [noteToDelete, setNoteToDelete] = useState<string | null>(null);
 
     const addNoteMutation = useAddPatientNote();
+    const updateNoteMutation = useUpdatePatientNote();
     const deleteNoteMutation = useDeletePatientNote();
 
     const handleAddNote = async () => {
@@ -66,8 +67,24 @@ export const NotesList: React.FC<NotesListProps> = ({
         setIsAddingNote(false);
     };
 
-    const handleEditNote = (noteId: string, updatedNote: PatientNote) => {
-        onNoteUpdated?.(noteId, updatedNote);
+    const handleEditNote = async (noteId: string, updatedNote: { title: string; content: string }) => {
+        try {
+            const result = await updateNoteMutation.mutateAsync({
+                patientId: patient.id,
+                noteId,
+                note: updatedNote
+            });
+
+            // Notify parent component if needed
+            if (result.notes && result.notes.length > 0) {
+                const updatedNoteFromResult = result.notes.find(note => note.id === noteId);
+                if (updatedNoteFromResult) {
+                    onNoteUpdated?.(noteId, updatedNoteFromResult);
+                }
+            }
+        } catch (error) {
+            console.error('Error updating note:', error);
+        }
     };
 
     const handleDeleteNote = (noteId: string) => {
@@ -216,9 +233,10 @@ export const NotesList: React.FC<NotesListProps> = ({
                             <NoteItem
                                 key={note.id || index}
                                 note={note}
-                                onEdit={!readOnly ? () => handleEditNote(note.id || '', note) : undefined}
+                                onEdit={!readOnly ? handleEditNote : undefined}
                                 onDelete={!readOnly ? () => handleDeleteNote(note.id || '') : undefined}
                                 showActions={!readOnly}
+                                isUpdating={updateNoteMutation.isPending || deleteNoteMutation.isPending}
                             />
                         ))}
                     </>
