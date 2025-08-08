@@ -13,6 +13,7 @@ const AppWithSplash: React.FC = () => {
 
   useEffect(() => {
     const initializeApp = async () => {
+      console.log('initializing app...');
       // Minimum splash screen time for better UX
       const minSplashTime = 1500; // 1.5 seconds
       const startTime = Date.now();
